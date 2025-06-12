@@ -58,19 +58,56 @@ Future<void> registrarse(String correo, String contrasenia, context) async {
       password: contrasenia.trim(),
     );
 
-    final Session? session = res.session;
     final User? user = res.user;
 
     if (user != null) {
+      mostrarAlerta(
+        context,
+        "Registro exitoso",
+        "Usuario registrado correctamente",
+      );
       Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error al registrar")));
+      mostrarAlerta(context, "Error", "No se pudo registrar el usuario.");
     }
   } on AuthException catch (e) {
-    // Aquí capturamos cualquier error de supabase
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    String mensajeError = traducirError(e.message);
+    mostrarAlerta(context, "Error de registro", mensajeError);
   } catch (e) {
-    // Otros errores
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Ocurrió un error")));
+    mostrarAlerta(context, "Error", "Ocurrió un error inesperado");
   }
+}
+
+String traducirError(String mensajeOriginal) {
+  // Lo pasamos a minúsculas para evitar problemas de mayúsculas
+  mensajeOriginal = mensajeOriginal.toLowerCase();
+
+  if (mensajeOriginal.contains("password should be at least 6 characters")
+      || mensajeOriginal.contains("password should be at least 6 characters long")) {
+    return "La contraseña debe tener al menos 6 caracteres.";
+  } else if (mensajeOriginal.contains("user already registered")) {
+    return "El correo ya está registrado.";
+  } else if (mensajeOriginal.contains("invalid email format")) {
+    return "El formato del correo no es válido.";
+  } else {
+    return "Ocurrió un error ingresar correctamente las credenciales";
+  }
+}
+
+void mostrarAlerta(context, String titulo, String mensaje) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(titulo),
+        content: Text(mensaje),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text("Cerrar"),
+          ),
+        ],
+      );
+    },
+  );
 }

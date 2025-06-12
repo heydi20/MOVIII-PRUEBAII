@@ -44,7 +44,13 @@ Widget lista() {
                 item['info']['imagen'],
                
               ),
-              onTap: () => (),
+             onTap: () {
+                  mostrarAlerta(
+                    context,
+                    item['titulo'],
+                    item['descripcion'],
+                  );
+                },
             );
             
           },
@@ -55,5 +61,25 @@ Widget lista() {
     },
   );
 }
+
+void mostrarAlerta( context, String titulo, String descripcion) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(titulo),
+        content: Text(descripcion),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text("Cerrar"),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
 
 /**ana@gmail.com */
